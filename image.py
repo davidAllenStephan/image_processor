@@ -198,7 +198,7 @@ def main(filePath, respectToAxis, respectToColor):
         print("\nAFTER AVERAGE: ", after_avg)
 
         # ------------SAVE----------------
-        im.save("oi.png")
+        im.save("images/oi.png")
         im = pixelate(im)
         im.save("gif_images/10.png")
         im1 = Image.open("gif_images/1.png")
