@@ -2,7 +2,6 @@ from PIL import Image
 import math
 import os
 import imageio as imageio
-import numpy as np
 
 
 images = []
@@ -176,7 +175,7 @@ def save_gif_image(im, percent_complete):
         pixel_im = im.copy()
         pixel_im = pixelate(pixel_im)
         if locks[locks[0]] != 10:
-            pixel_im.save(f"{locks[0]}.png")
+            pixel_im.save(f"gif_images/{locks[0]}.png")
 
 
 def main(filePath, respectToAxis, respectToColor):
@@ -201,25 +200,25 @@ def main(filePath, respectToAxis, respectToColor):
         # ------------SAVE----------------
         im.save("oi.png")
         im = pixelate(im)
-        im.save("10.png")
-        im1 = Image.open("1.png")
-        im2 = Image.open("2.png")
-        im3 = Image.open("3.png")
-        im4 = Image.open("4.png")
-        im5 = Image.open("5.png")
-        im6 = Image.open("6.png")
-        im7 = Image.open("7.png")
-        im8 = Image.open("8.png")
-        im9 = Image.open("9.png")
-        im10 = Image.open("10.png")
+        im.save("gif_images/10.png")
+        im1 = Image.open("gif_images/1.png")
+        im2 = Image.open("gif_images/2.png")
+        im3 = Image.open("gif_images/3.png")
+        im4 = Image.open("gif_images/4.png")
+        im5 = Image.open("gif_images/5.png")
+        im6 = Image.open("gif_images/6.png")
+        im7 = Image.open("gif_images/7.png")
+        im8 = Image.open("gif_images/8.png")
+        im9 = Image.open("gif_images/9.png")
+        im10 = Image.open("gif_images/10.png")
         images = []
         images.extend([im1, im2, im3, im4, im5, im6, im7, im8, im9, im10])
         print(images)
-        imageio.mimsave("oig.gif", images, duration=0.5)
+        imageio.mimsave("images/gifs/oig.gif", images, duration=0.5)
         print("IMAGE CREATED oi.png")
-        file = "note.mp3"
+        file = "sounds/note.mp3"
         os.system("afplay " + file)
 
 
 if __name__ == "__main__":
-    main("yogo_original.png", 1, -1)
+    main("images/originals/yogo_original.png", 1, -1)
