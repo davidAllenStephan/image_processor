@@ -8,6 +8,13 @@ images = []
 locks = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
+def swap_pixels(im, n, x, y):
+    temp = im.getpixel((n, x))
+    im.putpixel((n, x), im.getpixel((n, y)))
+    im.putpixel((n, y), temp)
+    return im
+
+
 def swap_rows(im, row1, row2):
     n = im.size[0] - 1
     for j in range(n):
@@ -26,27 +33,25 @@ def swap_columns(im, col1, col2):
     return im
 
 
-def merge(im, respectToAxis, left, right, progress, total_merges):
+def merge(im, n, respectToAxis, left, right, progress, total_merges):
     """Merge two sorted subarrays into a single sorted array."""
     merged = []
     i = j = 0
 
     while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
+        if left[i][0] <= right[j][0]:
             merged.append(left[i])
             if respectToAxis == 0:
-                swap_rows(im, i, j)
+                swap_pixels(im, n, left[i][1], right[j][1])
             elif respectToAxis == 1:
-                swap_columns(im, i, j)
+                swap_pixels(im, n, left[i][1], right[j][1])
             i += 1
         else:
             merged.append(right[j])
-            '''
             if respectToAxis == 0:
-                swap_rows(im, j, i)
+                swap_pixels(im, n, right[j][1], left[i][1])
             elif respectToAxis == 1:
-                swap_columns(im, j, i)
-            '''
+                swap_pixels(im, n, right[j][1], left[i][1])
             j += 1
 
     merged.extend(left[i:])
@@ -57,12 +62,11 @@ def merge(im, respectToAxis, left, right, progress, total_merges):
     percent_complete = (progress[0] / total_merges) * 100
     print(f"Progress: [{'#' * math.ceil(percent_complete / 5)}{'.' * (20 -
           math.ceil(percent_complete / 5))}] {percent_complete:.2f}% completed", end="\r")
-    save_gif_image(im, percent_complete)
 
     return merged
 
 
-def merge_sort_with_status(im, respectToAxis, arr, progress, total_merges):
+def merge_sort_with_status(im, n, respectToAxis, arr, progress, total_merges):
     """Perform a merge sort with a status bar."""
     if len(arr) <= 1:
         return arr
@@ -72,21 +76,21 @@ def merge_sort_with_status(im, respectToAxis, arr, progress, total_merges):
     right = arr[mid:]
 
     sorted_left = merge_sort_with_status(
-        im, respectToAxis, left, progress, total_merges)
+        im, n, respectToAxis, left, progress, total_merges)
     sorted_right = merge_sort_with_status(
-        im, respectToAxis, right, progress, total_merges)
+        im, n, respectToAxis, right, progress, total_merges)
 
-    return merge(im, respectToAxis, sorted_left, sorted_right, progress, total_merges)
+    return merge(im, n, respectToAxis, sorted_left, sorted_right, progress, total_merges)
 
 
-def calculate_total_merges(n):
+def calculate_total_merges(im, n):
     """Calculate the total number of merge operations required."""
     total = 0
     size = 1
     while size < n:
         total += math.ceil(n / (2 * size))
         size *= 2
-    return total
+    return total * im.size[0]-1
 
 
 '''
@@ -151,6 +155,26 @@ def create_array(im, respectToAxis, respectToColor):
     return arr
 
 
+def create_array2(im, respectToColor):
+    width = im.size[0] - 1
+    height = im.size[1] - 1
+    arr = []
+    for i in range(width):
+        arrtemp = []
+        for j in range(height):
+            if respectToColor == -1:
+                average_color_value = im.getpixel((i, j))[0]
+                average_color_value += im.getpixel((i, j))[1]
+                average_color_value += im.getpixel((i, j))[2]
+                average_color_value /= 3
+                arrtemp.append(average_color_value)
+            else:
+                arrtemp.append(im.getpixel((i, j))[respectToColor])
+        foo = [(value, index) for index, value in enumerate(arrtemp)]
+        arr.append(foo)
+    return arr
+
+
 def cal_avg(arr):
     avg = 0
     for i in range(len(arr)):
@@ -181,44 +205,33 @@ def save_gif_image(im, percent_complete):
 def main(filePath, respectToAxis, respectToColor):
     with Image.open(filePath) as im:
         # ------------BEGIN STATS----------------
-        arr = create_array(im, respectToAxis, respectToColor)
-        avg = cal_avg(arr)
-        print("AVERAGE: ", avg)
+        arr = create_array2(im, respectToColor)
+
+        # avg = cal_avg(arr)
+        # print("AVERAGE: ", avg)
 
         # ------------SORT----------------
         print("STARTING SORT...")
         progress = [0]
-        total_steps = calculate_total_merges(len(arr))
-        merge_sort_with_status(im, respectToAxis, arr,
-                               progress, total_steps)
+        total_steps = calculate_total_merges(im, len(arr[0]))
+
+        n = 0
+        for x in arr:
+            merge_sort_with_status(im, n, respectToAxis, x,
+                                   progress, total_steps)
+            n += 1
 
         # ------------AFTER STATS----------------
-        after_arr = create_array(im, respectToAxis, respectToColor)
-        after_avg = cal_avg(after_arr)
-        print("\nAFTER AVERAGE: ", after_avg)
+        # after_arr = create_array(im, respectToAxis, respectToColor)
+        # after_avg = cal_avg(after_arr)
+        # print("\nAFTER AVERAGE: ", after_avg)
 
         # ------------SAVE----------------
-        im.save("images/oi.png")
-        im = pixelate(im)
-        im.save("gif_images/10.png")
-        im1 = Image.open("gif_images/1.png")
-        im2 = Image.open("gif_images/2.png")
-        im3 = Image.open("gif_images/3.png")
-        im4 = Image.open("gif_images/4.png")
-        im5 = Image.open("gif_images/5.png")
-        im6 = Image.open("gif_images/6.png")
-        im7 = Image.open("gif_images/7.png")
-        im8 = Image.open("gif_images/8.png")
-        im9 = Image.open("gif_images/9.png")
-        im10 = Image.open("gif_images/10.png")
-        images = []
-        images.extend([im1, im2, im3, im4, im5, im6, im7, im8, im9, im10])
-        print(images)
-        imageio.mimsave("images/gifs/oig.gif", images, duration=0.5)
         print("IMAGE CREATED oi.png")
+        im.save("oi.png")
         file = "sounds/note.mp3"
         os.system("afplay " + file)
 
 
 if __name__ == "__main__":
-    main("images/originals/yogo_original.png", 1, -1)
+    main("images/originals/corridor_bluered.png", 0, -1)
