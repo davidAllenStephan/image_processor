@@ -1,6 +1,6 @@
 from TransformationStrategyInterface import TransformationStrategyInterface as TSI
 
 
-class ColorTransformation(TSI):
+class OrderTransformation(TSI):
     def perform_transformation(self):
-        print("proccessing Color")
+        print("proccessing Order")
